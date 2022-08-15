@@ -39,51 +39,50 @@ podTemplate(
     stage('Checkout code') {
       checkout scm
     }
-      dir(servicePath) {
-        container('nodejs') {
-          stage('Install NPM Dependencies') {
-            sh 'npm ci --quiet'
-          }
-          stage('Lint') {
-            sh 'npm run checkstyle:ci'
-          }
-          stage('Unit Test') {
-            sh 'npm run test-ci'
-          }
+    dir(servicePath) {
+      container('nodejs') {
+        stage('Install NPM Dependencies') {
+          sh 'npm ci --quiet'
         }
-        container('sonar-scanner') {
-          stage('Publish Analysis Results') {
-            withSonarQubeEnv('sonarqube') {
-              sh "sonar-scanner"
-            }
-          }
+        stage('Lint') {
+          sh 'npm run checkstyle:ci'
         }
-        container('docker') {
-          stage('Build Docker Image') {
-            docker.withRegistry("http://${dockerRegistry}", 'nexus-user') {
-              def image = docker.build("${imageRepo}:1.0.0")
-              image.push()
-            }
+        stage('Unit Test') {
+          sh 'npm run test-ci'
+        }
+      }
+      container('sonar-scanner') {
+        stage('Publish Analysis Results') {
+          withSonarQubeEnv('sonarqube') {
+            sh "sonar-scanner"
           }
         }
       }
-      container('helm') {
-        stage('Build Helm Chart') {
-          withCredentials([
-            usernamePassword(
-              usernameVariable: 'REPO_USER',
-              passwordVariable: 'REPO_PASS',
-              credentialsId: 'nexus-user'
-            )
-          ]) {
-            sh """
-              helm lint ${chartPath}
-              apk --no-cache add curl
-              helm dependency build ${chartPath}
-              CHART_PACKAGE="\$(helm package ${chartPath} | cut -d":" -f2 | tr -d '[:space:]')"
-              curl -u $REPO_USER:$REPO_PASS ${helmRepoUrl} --upload-file \$CHART_PACKAGE -v
-            """
+      container('docker') {
+        stage('Build Docker Image') {
+          docker.withRegistry("http://${dockerRegistry}", 'nexus-user') {
+            def image = docker.build("${imageRepo}:1.0.0")
+            image.push()
           }
+        }
+      }
+    }
+    container('helm') {
+      stage('Build Helm Chart') {
+        withCredentials([
+          usernamePassword(
+            usernameVariable: 'REPO_USER',
+            passwordVariable: 'REPO_PASS',
+            credentialsId: 'nexus-user'
+          )
+        ]) {
+          sh """
+            helm lint ${chartPath}
+            apk --no-cache add curl
+            helm dependency build ${chartPath}
+            CHART_PACKAGE="\$(helm package ${chartPath} | cut -d":" -f2 | tr -d '[:space:]')"
+            curl -u $REPO_USER:$REPO_PASS ${helmRepoUrl} --upload-file \$CHART_PACKAGE -v
+          """
         }
       }
     }
