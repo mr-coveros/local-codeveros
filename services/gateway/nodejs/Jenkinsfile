@@ -1,9 +1,90 @@
-#!/usr/bin/env groovy
+def servicePath = 'services/gateway/nodejs'
+def chartPath = 'charts/codeveros-gateway'
+def imageRepo = 'coveros/codeveros-gateway'
+def helmRepoUrl = 'http://172.31.63.178:30002/repository/helm-private/'
+def dockerRegistry = '172.31.63.178:30006'
 
-library 'codeveros-library'
-
-runNodeSvcPipeline([
-  repository: 'coveros/codeveros-gateway',
-  servicePath: 'services/gateway/nodejs/',
-  chartPath: 'charts/codeveros-gateway/'
-])
+podTemplate(
+  containers: [
+    containerTemplate(
+      name: 'docker',
+      image: 'docker:19.03',
+      command: 'cat',
+      ttyEnabled: true
+    ),
+    containerTemplate(
+      name: 'nodejs',
+      image: 'node:14.16',
+      command: 'cat',
+      ttyEnabled: true
+    ),
+    containerTemplate(
+      name: 'sonar-scanner',
+      image: 'coveros/sonarscanner-js:1.0',
+      command: 'cat',
+      ttyEnabled: true
+    ),
+    containerTemplate(
+      name: 'helm',
+      image: 'alpine/helm:3.5.0',
+      command: 'cat',
+      ttyEnabled: true
+    )
+  ],
+  volumes: [
+    hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
+  ]
+) {
+  node(POD_LABEL) {
+    stage('Checkout code') {
+      checkout scm
+    }
+    dir(servicePath) {
+      container('nodejs') {
+        stage('Install NPM Dependencies') {
+          sh 'npm ci --quiet'
+        }
+        stage('Lint') {
+          sh 'npm run checkstyle:ci'
+        }
+        stage('Unit Test') {
+          sh 'npm run test-ci'
+        }
+      }
+      container('sonar-scanner') {
+        stage('Publish Analysis Results') {
+          withSonarQubeEnv('sonarqube') {
+            sh "sonar-scanner"
+          }
+        }
+      }
+      container('docker') {
+        stage('Build Docker Image') {
+          docker.withRegistry("http://${dockerRegistry}", 'nexus-user') {
+            def image = docker.build("${imageRepo}:1.0.0")
+            image.push()
+          }
+        }
+      }
+    }
+    container('helm') {
+      stage('Build Helm Chart') {
+        withCredentials([
+          usernamePassword(
+            usernameVariable: 'REPO_USER',
+            passwordVariable: 'REPO_PASS',
+            credentialsId: 'nexus-user'
+          )
+        ]) {
+          sh """
+            helm lint ${chartPath}
+            apk --no-cache add curl
+            helm dependency build ${chartPath}
+            CHART_PACKAGE="\$(helm package ${chartPath} | cut -d":" -f2 | tr -d '[:space:]')"
+            curl -u $REPO_USER:$REPO_PASS ${helmRepoUrl} --upload-file \$CHART_PACKAGE -v
+          """
+        }
+      }
+    }
+  }
+}
