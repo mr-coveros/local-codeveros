@@ -29,6 +29,12 @@ podTemplate(
       image: 'alpine/helm:3.5.0',
       command: 'cat',
       ttyEnabled: true
+    ),
+    containerTemplate(
+      name: 'puppeteer',
+      image: 'buildkite/puppeteer:8.0.0',
+      command: 'cat',
+      ttyEnabled: true
     )
   ],
   volumes: [
@@ -47,6 +53,8 @@ podTemplate(
         stage('Lint') {
           sh 'npm run checkstyle'
         }
+      }
+      container('puppeteer') {  
         stage('Unit Test') {
           sh 'npm run test'
         }
