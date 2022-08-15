@@ -25,7 +25,7 @@ dependencies:
     version: 1.0.0
     repository: http://172.31.63.178:30002/repository/helm-private/
   - name: nginx
-    version: 8.5.x
+    version: 8.x.x
     repository: https://charts.bitnami.com/bitnami
     condition: proxy.enabled
     alias: proxy
