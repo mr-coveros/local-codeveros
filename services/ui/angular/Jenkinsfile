@@ -54,7 +54,7 @@ podTemplate(
           sh 'npm run checkstyle'
         }
       }
-      container('puppeteer') {  
+      container('puppeteer') {
         stage('Unit Test') {
           sh 'npm run test'
         }
@@ -98,6 +98,9 @@ podTemplate(
           """
         }
       }
+    }
+    stage('Trigger Deployment') {
+      build 'deployment'
     }
   }
 }
