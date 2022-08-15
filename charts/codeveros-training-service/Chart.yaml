@@ -10,5 +10,5 @@ maintainers:
     email: justin.hollingsworth@coveros.com
 dependencies:
   - name: mongodb
-    version: 10.3.3
+    version: 10.x.x
     repository: https://charts.bitnami.com/bitnami
