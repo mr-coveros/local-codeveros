@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/coveros/codeveros-training-service
-  pullPolicy: IfNotPresent
+  repository: 172.31.63.178:30006/coveros/codeveros-training-service
+  pullPolicy: Always
   tag: ""
 
 nameOverride: ""
