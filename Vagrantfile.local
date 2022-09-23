@@ -104,4 +104,19 @@ Vagrant.configure("2") do |config|
   # cd /vagrant/codeveros/services/auth-service/nodejs; npm start
   # cd /vagrant/codeveros/services/gateway/nodejs; npm start
   # cd /vagrant/codeveros/services/ui/angular; npm run start.proxy
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL4
+    cd /vagrant/codeveros/services/user-service/nodejs; npm start &
+  SHELL4
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL5
+    cd /vagrant/codeveros/services/training-service/nodejs; npm start &
+  SHELL5
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL6
+    cd /vagrant/codeveros/services/auth-service/nodejs; npm start &
+  SHELL6
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL7
+    cd /vagrant/codeveros/services/gateway/nodejs; npm start &
+  SHELL7
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL8
+    cd /vagrant/codeveros/services/ui/angular; npm run start.proxy &
+  SHELL8
 end
