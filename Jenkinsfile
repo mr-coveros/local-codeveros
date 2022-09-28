@@ -2,7 +2,7 @@ node {
     checkout scm
     stage('dependencies') {
         dir('services/ui') {
-            docker.image('nodejs:14.16').inside {
+            docker.image('node:14.16').inside {
                 sh 'npm ci --quiet'
             }
         }
