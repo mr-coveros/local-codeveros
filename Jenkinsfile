@@ -4,12 +4,12 @@ node {
     }
     checkout scm
     dir('services/ui/angular') {
-        stage('dependencies') {
+/*        stage('dependencies') {
             docker.image('node:14.16').inside() {
                 sh 'npm ci --quiet --cache="./npm"'
             }
         }
-/*        stage('lint') {
+        stage('lint') {
             docker.image('node:14.16').inside() {
                 try {
                     sh 'npm run checkstyle --cache="./npm"'
@@ -23,14 +23,14 @@ node {
                 sh 'npm run test --cache="./npm"'
             }
         }
-*/
         stage('build') {
             docker.image('node:14.16').inside() {
                 sh 'npm run build.production --cache="./npm"'
             }
         }
+*/
         stage('deliver') {
-            if("${env.BRANCH}" == 'master') {
+            if("${env.BRANCH_NAME}" == 'master') {
                 docker.withRegistry(credentialsId: 'dockerhub') {
                     def myImage = docker.build("mrcoveros/codeveros-ui:${env.BUILD_ID}")
                     myImage.push()
