@@ -18,6 +18,11 @@ node {
                 }
             }
         }
+        stage('test') {
+            docker.image('buildkite/puppeteer:8.0.0').inside() {
+                sh 'npm run test --cache="./npm"'
+            }
+        }
         stage('build') {
             docker.image('node:14.16').inside() {
                 sh 'npm run build.production --cache="./npm"'
