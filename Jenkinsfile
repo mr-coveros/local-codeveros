@@ -6,7 +6,7 @@ node {
     withEnv(["HOME=${env.WORKSPACE}"]) {
         stage('dependencies') {
             dir('services/ui/angular') {
-                docker.image('node:14.16').inside("-e }") {
+                docker.image('node:14.16').inside() {
                     sh 'npm ci --quiet'
                 }
             }
