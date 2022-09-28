@@ -1,6 +1,6 @@
 node {
     checkout scm
-    docker.pull('nodejs:14.16')
+    docker.image('nodejs:14.16').pull
     docker.image('nodejs:14.16').inside {
         stage('dependencies') {
             dir('services/ui') {
