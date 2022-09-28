@@ -6,7 +6,12 @@ node {
     stage('dependencies') {
         dir('services/ui/angular') {
             docker.image('node:14.16').inside('-u root') {
-                sh 'npm ci --quiet'
+                try {
+                    sh 'npm ci --quiet'
+                } catch(Exception e) {
+                    echo 'Failed installing dependencies ' + e.toString()
+                    sh 'cat /root/.npm/_logs/*.log'
+                }
             }
         }
     }
