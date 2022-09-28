@@ -6,7 +6,7 @@ node {
     dir('services/ui/angular') {
         stage('dependencies') {
             docker.image('node:14.16').inside() {
-                sh 'npm ci --quiet'
+                sh 'npm ci --quiet --cache="./npm"'
             }
         }
         stage('lint') {
