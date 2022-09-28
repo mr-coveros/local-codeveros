@@ -1,6 +1,6 @@
 node {
     checkout scm
-    withEnv(["HOME=${env.WORKSPACE"]) {
+    withEnv(["HOME=${env.WORKSPACE}"]) {
         stage('dependencies') {
             dir('services/ui/angular') {
                 docker.image('node:14.16').inside("-e }") {
