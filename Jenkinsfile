@@ -28,5 +28,14 @@ node {
                 sh 'npm run build.production --cache="./npm"'
             }
         }
+        stage('deliver') {
+            if(env.BRANCH == 'master') {
+                docker.withRegistry(credentialsId: 'dockerhub') {
+                    def myImage = docker.build("mrcoveros/codeveros-ui:${env.BUILD_ID}")
+                    myImage.push()
+                    myImage.push(latest)
+                }
+            }
+        }
     }
 }
