@@ -1,7 +1,7 @@
 node {
     checkout scm
     stage('dependencies') {
-        dir('services/ui') {
+        dir('services/ui/angular') {
             docker.image('node:14.16').inside {
                 sh 'npm ci --quiet'
             }
