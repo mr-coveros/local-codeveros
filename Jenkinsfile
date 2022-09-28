@@ -1,5 +1,12 @@
 node {
     checkout scm
+    docker.image(nodejs:14.16).inside {
+        stage('dependencies') {
+            dir('services/ui') {
+                sh 'npm ci --quiet'
+            }
+        }
+    }
     stage('lint') {
         try {
             echo 'linting'
