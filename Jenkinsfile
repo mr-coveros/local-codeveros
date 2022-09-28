@@ -23,7 +23,8 @@ node {
                 sh 'npm run test --cache="./npm"'
             }
         }
-*/        stage('build') {
+*/
+        stage('build') {
             docker.image('node:14.16').inside() {
                 sh 'npm run build.production --cache="./npm"'
             }
