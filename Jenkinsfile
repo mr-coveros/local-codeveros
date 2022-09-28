@@ -30,11 +30,11 @@ node {
         }
 */
         stage('deliver') {
-            if("${env.BRANCH_NAME}" == 'master') {
-                docker.withRegistry(credentialsId: 'dockerhub') {
+            if(env.BRANCH_NAME == 'master') {
+                docker.withRegistry('', 'dockerhub') {
                     def myImage = docker.build("mrcoveros/codeveros-ui:${env.BUILD_ID}")
                     myImage.push()
-                    myImage.push(latest)
+                    myImage.push('latest')
                 }
             }
         }
