@@ -1,4 +1,7 @@
 node {
+    stage('cleanup') {
+        cleanWs()
+    }
     checkout scm
     withEnv(["HOME=${env.WORKSPACE}"]) {
         stage('dependencies') {
