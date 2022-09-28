@@ -10,10 +10,12 @@ node {
             }
         }
         stage('lint') {
-            try {
-                echo 'linting'
-            } catch(Exception e) {
-                echo 'Failed linting ' + e.toString()
+            docker.image('node:14.16').inside() {
+                try {
+                    sh 'npm run checkstyle --cache="./npm"'
+                } catch(Exception e) {
+                    echo 'Failed linting ' + e.toString()
+                }
             }
         }
         stage('build') {
