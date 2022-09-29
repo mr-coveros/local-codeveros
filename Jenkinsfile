@@ -44,7 +44,7 @@ node {
         stage('promote') {
             if(env.BRANCH_NAME == 'master') {
                 docker.withRegistry('', 'dockerhub') {
-                    def myImage = docker.build("${imageRepo}:dev")
+                    def myImage = docker.image("${imageRepo}:dev")
                     myImage.pull()
                     myImage.push('latest')
                 }
