@@ -49,6 +49,7 @@ node {
                     myImage.pull()
                     myImage.push('latest')
                 }
+                build(job: 'deploy', parameters: [string(name: 'env', value: 'prod'), string(name: 'tag', value: 'latest')])
             }
         }
     }
