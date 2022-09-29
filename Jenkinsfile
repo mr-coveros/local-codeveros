@@ -1,10 +1,13 @@
+def servicePath = 'services/ui/angular'
+def imageRepo = 'mrcoveros/codeveros-ui'
 node {
     stage('cleanup') {
         cleanWs()
     }
     checkout scm
-    dir('services/ui/angular') {
-/*        stage('dependencies') {
+    dir(servicePath) {
+/*
+        stage('dependencies') {
             docker.image('node:14.16').inside() {
                 sh 'npm ci --quiet --cache="./npm"'
             }
@@ -30,10 +33,19 @@ node {
         }
 */
         stage('deliver') {
+            if(env.BRANCH_NAME == 'develop') {
+                docker.withRegistry('', 'dockerhub') {
+                    def myImage = docker.build("${imageRepo}:${env.BUILD_ID}")
+                    myImage.push()
+                    myImage.push('dev')
+                }
+            }
+        }
+        stage('promote') {
             if(env.BRANCH_NAME == 'master') {
                 docker.withRegistry('', 'dockerhub') {
-                    def myImage = docker.build("mrcoveros/codeveros-ui:${env.BUILD_ID}")
-                    myImage.push()
+                    def myImage = docker.build("${imageRepo}:dev")
+                    myImage.pull()
                     myImage.push('latest')
                 }
             }
