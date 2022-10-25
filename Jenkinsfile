@@ -21,5 +21,10 @@ node {
         echo 'Failed linting ' + e.toString()
       }
     }
+    stage('test') {
+      docker.image('buildkite/puppeteer:8.0.0').inside {
+        sh 'npm run test --cache="./npm"'
+      }
+    }
   }
 }
