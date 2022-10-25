@@ -3,6 +3,7 @@ node {
     cleanWs()
   }
   checkout scm
+  /*
   dir('services/ui/angular') {
     stage('Dependencies') {
       docker.image('node:14.16').inside {
@@ -14,7 +15,6 @@ node {
         sh 'npm run build.production --cache="./npm"'
       }
     }
-    /*
     stage('Lint') {
       try {
         echo 'linting'
