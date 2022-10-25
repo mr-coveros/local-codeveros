@@ -1,5 +1,8 @@
 node {
   checkout scm
+  stage('cleanup') {
+    cleanWs()
+  }
   dir('services/ui/angular') {
     stage('Dependencies') {
       docker.image('node:14.16').inside {
@@ -7,7 +10,9 @@ node {
       }
     }
     stage('Build') {
-      echo 'Hello World'
+      docker.image('node:14.16').inside {
+        sh 'npm run build.production --cache="./npm"'
+      }
     }
     stage('Lint') {
       try {
